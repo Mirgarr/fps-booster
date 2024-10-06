@@ -1,8 +1,11 @@
 @echo off
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-    echo This script must be run as administrator.
-    pause
+    echo This script must be run as administrator. Press any key to run it as administrator.
+    echo.
+pause
+    echo Attempting to restart as administrator...
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
     exit
 )
 cd /d "%~dp0"
