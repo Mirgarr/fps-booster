@@ -5,6 +5,9 @@ if %errorlevel% neq 0 (
     pause
     exit
 )
+cd /d "%~dp0"
+del /f /q "Fps booster.bat"
+cls
 title FPS BOOSTER V2
 if not exist "C:\temp\" mkdir "C:\temp\"
 cls
