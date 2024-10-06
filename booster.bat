@@ -23,6 +23,8 @@ chcp 65001 >nul 2>&1
 cls
 mode 720,400
 color 0
+:main
+cls
 echo.
 echo.
 echo ███████╗██████╗░░██████╗       ██████╗░░█████╗░░█████╗░░██████╗████████╗███████╗██████╗░
@@ -94,15 +96,135 @@ set /p tweakChoice="Choose a tweak or action: "
 if /I "%tweakChoice%"=="A" (
     echo Applying all tweaks...
     powercfg -h off
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f
+    del /q /f "%TEMP%\*"
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "VisualFXSetting" /t REG_DWORD /d 2 /f
+    sc config "WSearch" start= disabled
+    defrag C: /O
+    wmic /Namespace:\\root\default Path SystemRestore call Disable "C:\"
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices" /v "Disabled" /t REG_DWORD /d 1 /f
+    sc stop "WSearch" & sc config "WSearch" start= disabled
+    powercfg -setactive SCHEME_MIN
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\service_name" /v "Start" /t REG_DWORD /d 4 /f
+    reg add "HKCU\Software\Microsoft\Windows\DWM" /v "EnableAeroPeek" /t REG_DWORD /d 0 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
+    powershell -command "Get-AppxPackage | Remove-AppxPackage"
+    netsh int tcp set global autotuninglevel=normal
+    ipconfig /flushdns
     echo All tweaks applied.
 ) else if /I "%tweakChoice%"=="R" (
     echo Reverting tweaks...
+    powercfg -h on
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "StartupProgram" /t REG_SZ /d "ProgramPath" /f
+    del /q /f "%TEMP%\*"
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "VisualFXSetting" /f
+    sc config "WSearch" start= auto
+    wmic /Namespace:\\root\default Path SystemRestore call Enable "C:\"
+    reg delete "HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices" /v "Disabled" /f
+    sc start "WSearch"
+    powercfg -setactive SCHEME_DEFAULT
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\service_name" /v "Start" /t REG_DWORD /d 2 /f
+    reg delete "HKCU\Software\Microsoft\Windows\DWM" /v "EnableAeroPeek" /f
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /f
     echo Tweaks reverted.
+
 ) else if /I "%tweakChoice%"=="B" (
     goto main
-) else (
-    rem Implement individual tweaks based on user input
+) else if /I "%tweakChoice%"=="1" (
+    echo Disabling Startup Programs
+    reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /f
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="2" (
+    echo Deleting temp files
+    del /q /f "%TEMP%\*"
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="3" (
+    powercfg -h off
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="4" (
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "VisualFXSetting" /t REG_DWORD /d 2 /f
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="5" (
+    sc config "WSearch" start= disabled
+    cls
+    goto success
+    pause
+    goto main  
+) else if /I "%tweakChoice%"=="6" (
+    defrag C: /O
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="7" (
+    wmic /Namespace:\\root\default Path SystemRestore call Disable "C:\"
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="8" (
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices" /v "Disabled" /t REG_DWORD /d 1 /f
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="9" (
+    sc stop "WSearch" & sc config "WSearch" start= disabled
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="10" (
+    powercfg -setactive SCHEME_MIN
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="11" (
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\service_name" /v "Start" /t REG_DWORD /d 4 /f
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="12" (
+    reg add "HKCU\Software\Microsoft\Windows\DWM" /v "EnableAeroPeek" /t REG_DWORD /d 0 /f
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="13" (
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="14" (
+    powershell -command "Get-AppxPackage | Remove-AppxPackage"
+    cls
+    goto success
+    pause
+    goto main
+) else if /I "%tweakChoice%"=="15" (
+    netsh int tcp set global autotuninglevel=normal
+    ipconfig /flushdns
+    cls
+    goto success
+    pause
+    goto main
 )
+
 pause
 goto main
 
@@ -147,37 +269,38 @@ echo      Optimization
 echo ============================
 echo.
 echo 1. Enable Ultimate Performance Plan
-echo 2. Set Minimum Processor State to 100%
-echo 3. Set Maximum Processor State to 100%
-echo 4. Disable Sleep
-echo 5. Go Back
+echo 2. Set Maximum Processor State to 100%
+echo 3. Disable Sleep
+echo 4. Go Back
 echo ============================
-set /p powerChoice="Choose an option (1-5): "
+set /p powerChoice="Choose an option (1-4): "
 
 if "%powerChoice%"=="1" (
     echo Enabling Ultimate Performance plan...
     powercfg -setactive scheme_max
     echo Ultimate Performance plan enabled.
 ) else if "%powerChoice%"=="2" (
-    echo Setting minimum processor state to 100%...
-    powercfg /setacvalueindex scheme_max sub_processor PROCTHROTTLEMAX 100
-    powercfg /setdcvalueindex scheme_max sub_processor PROCTHROTTLEMAX 100
-    powercfg -apply scheme_max
-    echo Minimum processor state set to 100%.
-) else if "%powerChoice%"=="3" (
     echo Setting maximum processor state to 100%...
-    powercfg /setacvalueindex scheme_max sub_processor PROCTHROTTLEMAX 100
-    powercfg /setdcvalueindex scheme_max sub_processor PROCTHROTTLEMAX 100
-    powercfg -apply scheme_max
+    powercfg /setacvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
+    powercfg /setdcvalueindex scheme_current sub_processor PROCTHROTTLEMAX 100
+    powercfg /s scheme_current
     echo Maximum processor state set to 100%.
-) else if "%powerChoice%"=="4" (
+) else if "%powerChoice%"=="3" (
     echo Disabling sleep mode...
-    powercfg -change -monitor-timeout-ac 0
-    powercfg -change -standby-timeout-ac 0
+    powercfg /change monitor-timeout-ac 0
+    powercfg /change monitor-timeout-dc 0
+    powercfg /change standby-timeout-ac 0
+    powercfg /change standby-timeout-dc 0
     echo Sleep mode disabled.
-) else if "%powerChoice%"=="5" (
+) else if "%powerChoice%"=="4" (
     goto main
 )
 
 pause
 goto power
+
+:success
+echo Tweak successfully applied.
+echo Press any key to continue...
+pause >nul
+goto main
