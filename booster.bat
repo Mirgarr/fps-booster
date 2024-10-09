@@ -44,22 +44,34 @@ echo 3. Game Prioritization
 echo.
 echo 4. Ultimate Performance Power Plan Optimization
 echo.
-echo 5. Exit
+echo 5. Others
+echo.
+echo 6. Exit
 echo ============================
 
-set /p choice="Choose an option (1-5): "
+set /p choice="Choose an option (1-6): "
 
 if "%choice%"=="1" goto restore
 if "%choice%"=="2" goto tweaks
 if "%choice%"=="3" goto games
 if "%choice%"=="4" goto power
-if "%choice%"=="5" exit
+if "%choice%"=="5" goto others
+if "%choice%"=="6" exit
 goto main
 
 :restore
 cls
+echo Are you sure?
+echo 1. Yes
+echo 2. No
+set /p choice="Choose an option (1-2): "
+if "%choice%"=="1" goto continuerestore
+if "%choice%"=="2" goto main
+:continuerestore
+cls
 echo Creating a restore point...
 powershell.exe -Command "Checkpoint-Computer -Description 'Pre-Optimization Restore Point' -RestorePointType 'MODIFY_SETTINGS'"
+cls
 echo Restore point created.
 pause
 goto main
@@ -126,6 +138,7 @@ if /I "%tweakChoice%"=="A" (
     reg add "HKLM\SYSTEM\CurrentControlSet\Services\service_name" /v "Start" /t REG_DWORD /d 2 /f
     reg delete "HKCU\Software\Microsoft\Windows\DWM" /v "EnableAeroPeek" /f
     reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /f
+    cls
     echo Tweaks reverted.
 
 ) else if /I "%tweakChoice%"=="B" (
@@ -136,93 +149,93 @@ if /I "%tweakChoice%"=="A" (
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="2" (
     echo Deleting temp files
     del /q /f "%TEMP%\*"
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="3" (
     powercfg -h off
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="4" (
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "VisualFXSetting" /t REG_DWORD /d 2 /f
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="5" (
     sc config "WSearch" start= disabled
     cls
     goto success
     pause
-    goto main  
+    goto tweaks  
 ) else if /I "%tweakChoice%"=="6" (
     defrag C: /O
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="7" (
     wmic /Namespace:\\root\default Path SystemRestore call Disable "C:\"
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="8" (
     reg add "HKLM\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices" /v "Disabled" /t REG_DWORD /d 1 /f
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="9" (
     sc stop "WSearch" & sc config "WSearch" start= disabled
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="10" (
     powercfg -setactive SCHEME_MIN
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="11" (
     reg add "HKLM\SYSTEM\CurrentControlSet\Services\service_name" /v "Start" /t REG_DWORD /d 4 /f
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="12" (
     reg add "HKCU\Software\Microsoft\Windows\DWM" /v "EnableAeroPeek" /t REG_DWORD /d 0 /f
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="13" (
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="14" (
     powershell -command "Get-AppxPackage | Remove-AppxPackage"
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 ) else if /I "%tweakChoice%"=="15" (
     netsh int tcp set global autotuninglevel=normal
     ipconfig /flushdns
     cls
     goto success
     pause
-    goto main
+    goto tweaks
 )
 
 pause
@@ -255,8 +268,9 @@ if /I "%gameChoice%"=="1" (
     echo Setting priority for Valorant...
     wmic process where "name='RiotClientServices.exe'" call setpriority "high priority"
 ) else if /I "%gameChoice%"=="B" (
-    goto main
+goto main
 )
+cls
 echo Priority set for the selected game.
 pause
 goto main
@@ -291,6 +305,7 @@ if "%powerChoice%"=="1" (
     powercfg /change monitor-timeout-dc 0
     powercfg /change standby-timeout-ac 0
     powercfg /change standby-timeout-dc 0
+    cls
     echo Sleep mode disabled.
 ) else if "%powerChoice%"=="4" (
     goto main
@@ -299,8 +314,69 @@ if "%powerChoice%"=="1" (
 pause
 goto power
 
+:others
+cls
+echo ============================
+echo          Others
+echo ============================
+echo.
+echo 1. Download NoMoreEdge (redirects every edge links to another selected web browser)
+echo 2. Download TimerResolution (improves fps, will run at startup)
+echo 3. Uninstall all
+echo B. Go Back 
+echo ============================
+set /p otherChoice="Choose a tweak or action: "
+if "%otherChoice%"=="1" (
+    setlocal
+
+    set "url1=https://github.com/KodeByWrath/NoMoreEdge/releases/download/1.7.5.0/NoMoreEdgeSetup.exe"
+    set "output1=NoMoreEdgeSetup.exe"
+    curl -L -o "%output1%" "%url1%"
+    start "" "%output1%"
+    endlocal
+    cls
+    echo Successfully installed and executed NoMoreEdge Setup.
+    pause
+    goto others
+
+) else if "%otherChoice%"=="2" (
+
+set tempDir=%temp%
+curl -L -k -o "%tempDir%\timerresolution.bat" https://raw.githubusercontent.com/Mirgarr/timerresolution/main/timerresolution.bat
+curl -L -k -o "%tempDir%\timerresolution.vbs" https://raw.githubusercontent.com/Mirgarr/timerresolution/main/timerresolution.vbs
+
+start "" "%tempDir%\timerresolution.vbs"
+
+timeout /t 5 /nobreak >nul
+
+tasklist | findstr /I "timerresolution.exe" >nul
+if %errorlevel%==0 (
+    del "%tempDir%\timerresolution.bat" /F
+    del "%tempDir%\timerresolution.vbs" /F
+    cls
+    echo Successfully installed and executed TimerResolution.
+    echo Press Maximum every time to boost your fps.
+    echo After clicking on Maximum, DON'T CLOSE IT, let TimerResolution run in the background.
+) else (
+    cls
+    echo TimerResolution.exe is not opened.
+    echo This may be because the script wasn't executed with administrator privileges.
+)
+
+pause
+goto others
+
+) else if /I "%otherChoice%"=="3" (
+del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\TimerResolution.exe"
+echo sucessfully uninstalled timerresolution
+pause
+goto others
+) else if /I "%otherChoice%"=="B" (
+goto main
+)
+
+
 :success
 echo Tweak successfully applied.
-echo Press any key to continue...
-pause >nul
+pause
 goto main
